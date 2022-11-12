@@ -56,39 +56,54 @@ class _OrgMyProjectsState extends State<OrgMyProjects> {
               final DocumentSnapshot document =
                   snapshot.data as DocumentSnapshot;
 
-                final Map<String, dynamic> documentData =
-                document.data() as Map<String, dynamic>;
+              final Map<String, dynamic> documentData =
+                  document.data() as Map<String, dynamic>;
 
-                List checkingForEmptyList = documentData["project"];
-                if (documentData["project"] == null ||
-                    checkingForEmptyList.isEmpty) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const <Widget>[
-                      Text(
-                        "No Project Available...",
-                        maxLines: 2,
-                        style: TextStyle(
-                          fontSize: 20.0,
-                          color: Colors.black,
+              List checkingForEmptyList = documentData["project"];
+              if (documentData["project"] == null ||
+                  checkingForEmptyList.isEmpty) {
+                return Padding(
+                  padding: EdgeInsets.fromLTRB(55.0, 10.0, 0.0, 0.0),
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 250.0,
+                        width: 250.0,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage("assets/icons/errorgif.gif"),
+                            fit: BoxFit.fill,
+                          ),
+                          shape: BoxShape.circle,
                         ),
-                      )
+                      ),
+                      SizedBox(
+                        height: 30,
+                        width: 30,
+                      ),
+                      Container(
+                        child: Text(
+                          "No Posted Projects !",
+                          textScaleFactor: 1.4,
+                          style: TextStyle(color: Colors.blue, letterSpacing: 2.0),
+                        ),
+                      ),
                     ],
-                  );
-                }
-
+                  ),
+                );
+              }
 
               final List<Map<String, dynamic>> itemDetailList =
                   (documentData['project'] as List)
                       .map((itemDetail) => itemDetail as Map<String, dynamic>)
                       .toList();
               final List<Map<String, dynamic>> modifiedlist = [];
-              var i=0;
+              var i = 0;
               List index1 = [];
-              for (var name in itemDetailList)
-              {
-                String checkstatus = name['org_name'];
-                if(checkstatus==widget.auth.currentUser!.uid) {
+              for (var name in itemDetailList) {
+                String checkid = name['org_name'];
+                String checkstatus = name['status'];
+                if (checkid == widget.auth.currentUser!.uid && checkstatus=="posted") {
                   modifiedlist.add(name);
                   index1.add(i);
                 }
@@ -112,23 +127,26 @@ class _OrgMyProjectsState extends State<OrgMyProjects> {
                     padding: const EdgeInsets.fromLTRB(8.0, 15.0, 8.0, 1.0),
                     child: ListTile(
                       contentPadding:
-                      const EdgeInsets.fromLTRB(10.0, 2.0, 10.0, 2.0),
-                      tileColor: Colors.yellow[200],
+                          const EdgeInsets.fromLTRB(10.0, 2.0, 10.0, 2.0),
+                      tileColor: Colors.yellow,
                       shape: RoundedRectangleBorder(
                           side: BorderSide(width: 1),
                           borderRadius: BorderRadius.circular(10)),
                       leading:
-                      Image(image: AssetImage("assets/img_user/org.png")),
+                          Image(image: AssetImage("assets/img_user/org.png")),
                       title: Text(
                         project_title,
                         textScaleFactor: 1.3,
                       ),
                       subtitle: Text(date),
                       onTap: () {
-
                         setState(() {
                           // print(project_title);
-                          Navigator.pushNamed(context, "/org_updatemyproject",arguments: {'itemDetail':itemDetail,'index':index1[index]});
+                          Navigator.pushNamed(context, "/org_updatemyproject",
+                              arguments: {
+                                'itemDetail': itemDetail,
+                                'index': index1[index]
+                              });
                         });
                       },
                     ),

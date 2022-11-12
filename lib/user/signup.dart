@@ -8,6 +8,7 @@ class RegisterUser extends StatefulWidget {
 
   @override
   State<RegisterUser> createState() => _RegisterUserState();
+
 }
 
 class _RegisterUserState extends State<RegisterUser> {
@@ -16,10 +17,42 @@ class _RegisterUserState extends State<RegisterUser> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController clgController = TextEditingController();
   final TextEditingController passingYearController = TextEditingController();
+  final TextEditingController orgDescController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey();
+
+
+
+  void displayOrgDesc()
+  {
+    _visibleTextOrgDesc = false;
+  }
+  @override
+  void initState() {
+    displayOrgDesc();
+  }
   String AccountType = "user";
   bool _validate = false;
   final _auth = FirebaseAuth.instance;
+  bool _visibleText = true;
+  bool _visibleTextCollege = true;
+  bool _visibleTextOrgDesc = true;
+
+  void checK(String? type) {
+    if (type == "user") {
+      _visibleText = true;
+      _visibleTextCollege = true;
+      _visibleTextOrgDesc = false;
+    } else {
+      _visibleText = false;
+      _visibleTextCollege = false;
+      _visibleTextOrgDesc = true;
+      clgController.text = "";
+      passingYearController.text = "";
+      orgDescController.text = "";
+
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     String? validateEmail(String value) {
@@ -58,6 +91,14 @@ class _RegisterUserState extends State<RegisterUser> {
       value = value.trim();
       if (value.isEmpty) {
         return 'Username is required';
+      } else {
+        return null;
+      }
+    }
+    String? validateOrgDesc(String value) {
+      value = value.trim();
+      if (value.isEmpty) {
+        return 'Organization Description is required';
       } else {
         return null;
       }
@@ -156,108 +197,190 @@ class _RegisterUserState extends State<RegisterUser> {
                               child: Image.asset("assets/img_user/email.png",
                                   height: 15),
                             ),
+
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(15)),
                             hintText: "Enter Email Id",
                             labelText: "Email Id"),
                       ),
                       const SizedBox(
-                        height: 20.0,
+                        height: 15.0,
                         width: 20.0,
                       ),
-                      TextFormField(
-                        autofocus: false,
-                        validator: (value) => validateClg(value!),
-                        controller: clgController,
-                        keyboardType: TextInputType.text,
-                        onSaved: (value) {
-                          clgController.text = value!;
-                        },
-                        textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(
-                            prefixIcon: Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 10, right: 10, top: 4, bottom: 4),
-                              child: Image.asset("assets/img_user/college.png",
-                                  height: 15),
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                          border: Border.all(color: Colors.black12,width: 2,style: BorderStyle.solid),
+                        ),
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(10, 10, 10, 5),
+                              child: const Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    "Select Your Account Type",
+                                    style: TextStyle(fontSize: 18),
+                                  )),
                             ),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(15)),
-                            hintText: "Enter your College Name",
-                            labelText: "College"),
+                            RadioListTile(
+                              activeColor: Colors.green,
+                              title: Text("Organization"),
+                              value: "organization",
+                              groupValue: AccountType,
+                              onChanged: (value) {
+                                setState(() {
+                                  AccountType = value.toString();
+                                  checK(AccountType);
+                                });
+                              },
+                            ),
+                            RadioListTile(
+                              activeColor: Colors.green,
+                              title: Text("User"),
+                              value: "user",
+                              groupValue: AccountType,
+                              onChanged: (value) {
+                                setState(() {
+                                  AccountType = value.toString();
+                                  checK(AccountType);
+                                });
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(
                         height: 20.0,
                         width: 20.0,
                       ),
-                      TextFormField(
-                        autofocus: false,
-                        controller: passingYearController,
-                        keyboardType: TextInputType.number,
-                        validator: (value) => validatePassingYear(value!),
-                        onSaved: (value) {
-                          passingYearController.text = value!;
-                        },
-                        textInputAction: TextInputAction.done,
-                        decoration: InputDecoration(
-                            prefixIcon: Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 10, right: 10, top: 4, bottom: 4),
-                              child: Image.asset("assets/img_user/year.png",
-                                  height: 15),
-                            ),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(15)),
-                            hintText: "Enter your Passing Year",
-                            labelText: "Passing Year"),
+                      Visibility(
+                        visible: (_visibleTextCollege),
+                        child: TextFormField(
+                          autofocus: false,
+                          validator: (value) => validateClg(value!),
+                          controller: clgController,
+                          keyboardType: TextInputType.text,
+                          onSaved: (value) {
+                            clgController.text = value!;
+                          },
+                          textInputAction: TextInputAction.next,
+                          decoration: InputDecoration(
+                              prefixIcon: Padding(
+                                padding: const EdgeInsets.only(
+                                    left: 10, right: 10, top: 4, bottom: 4),
+                                child: Image.asset(
+                                    "assets/img_user/college.png",
+                                    height: 15),
+                              ),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              hintText: "Enter your College Name",
+                              labelText: "College"),
+                        ),
                       ),
-                      Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(10, 10, 10, 5),
-                            child: const Align(
-                                alignment: Alignment.centerLeft,
-
-                                child: Text("Select Your Account Type",style: TextStyle(fontSize: 18),)),
-                          ),
-                          RadioListTile(
-
-                            activeColor: Colors.green,
-                            title: Text("Organization"),
-                            value: "organization",
-                            groupValue: AccountType,
-                            onChanged: (value) {
-                              setState(() {
-                                AccountType = value.toString();
-                              });
-                            },
-                          ),
-                          RadioListTile(
-                            activeColor: Colors.green,
-                            title: Text("User"),
-                            value: "user",
-                            groupValue: AccountType,
-                            onChanged: (value) {
-                              setState(() {
-                                AccountType = value.toString();
-                              });
-                            },
-                          ),
-                        ],
+                      const SizedBox(
+                        height: 20.0,
+                        width: 20.0,
                       ),
+                      Visibility(
+                        visible: (_visibleTextOrgDesc),
+                        child: TextFormField(
+                          autofocus: false,
+                          validator: (value) => validateOrgDesc(value!),
+                          controller: orgDescController,
+                          keyboardType: TextInputType.text,
+                          onSaved: (value) {
+                            orgDescController.text = value!;
+                          },
+                          textInputAction: TextInputAction.next,
+                          decoration: InputDecoration(
+                              prefixIcon: Padding(
+                                padding: const EdgeInsets.only(
+                                    left: 10, right: 10, top: 4, bottom: 4),
+                                child: Image.asset(
+                                    "assets/icons/orgicon.png",
+                                    height: 15),
+                              ),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              hintText: "Enter Organization Description",
+                              labelText: "Organization Description"),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 20.0,
+                        width: 20.0,
+                      ),
+                      Visibility(
+                        visible: (_visibleText),
+                        child: TextFormField(
+                          autofocus: false,
+                          controller: passingYearController,
+                          keyboardType: TextInputType.number,
+                          validator: (value) => validatePassingYear(value!),
+                          onSaved: (value) {
+                            passingYearController.text = value!;
+                          },
+                          textInputAction: TextInputAction.done,
+                          decoration: InputDecoration(
+                              prefixIcon: Padding(
+                                padding: const EdgeInsets.only(
+                                    left: 10, right: 10, top: 4, bottom: 4),
+                                child: Image.asset("assets/img_user/year.png",
+                                    height: 15),
+                              ),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              hintText: "Enter your Passing Year",
+                              labelText: "Passing Year"),
+                        ),
+                      ),
+                      // TextFormField(
+                      //   autofocus: false,
+                      //   controller: passingYearController,
+                      //   keyboardType: TextInputType.number,
+                      //   validator: (value) => validatePassingYear(value!),
+                      //   onSaved: (value) {
+                      //     passingYearController.text = value!;
+                      //   },
+                      //   textInputAction: TextInputAction.done,
+                      //   decoration: InputDecoration(
+                      //       prefixIcon: Padding(
+                      //         padding: const EdgeInsets.only(
+                      //             left: 10, right: 10, top: 4, bottom: 4),
+                      //         child: Image.asset("assets/img_user/year.png",
+                      //             height: 15),
+                      //       ),
+                      //       border: OutlineInputBorder(
+                      //           borderRadius: BorderRadius.circular(15)),
+                      //       hintText: "Enter your Passing Year",
+                      //       labelText: "Passing Year"),
+                      // ),
+
                       const SizedBox(
                         height: 20.0,
                         width: 20.0,
                       ),
                       ElevatedButton.icon(
                           onPressed: () {
-                            signUpUser(
-                                emailController.text.trim(),
-                                passwordController.text.trim(),
-                                usernameController.text.trim(),
-                                clgController.text.trim(),
-                                passingYearController.text.trim());
-                            Navigator.pushReplacementNamed(context, "/home");
+                            if(AccountType=="user") {
+                              signUpUser(
+                                  emailController.text.trim(),
+                                  passwordController.text.trim(),
+                                  usernameController.text.trim(),
+                                  clgController.text.trim(),
+                                  passingYearController.text.trim());
+                            }else{
+                              signUpOrg(
+                                  emailController.text.trim(),
+                                  passwordController.text.trim(),
+                                  usernameController.text.trim(),
+                                orgDescController.text.trim(),
+                              );
+                            }
+                            // Navigator.pushReplacementNamed(
+                            //     context, "/userHome");
                           },
                           style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(
@@ -286,10 +409,31 @@ class _RegisterUserState extends State<RegisterUser> {
       _formKey.currentState!.save();
       String emailLocal = emailController.text.trim();
       String passwordLocal = passwordController.text.trim();
-      dynamic response = widget.auth
-          .signUpWithEmailAndPassword(email, password, username, clg, passyear,AccountType);
+      dynamic response = widget.auth.signUpWithEmailAndPassword(
+          email, password, username, clg, passyear, AccountType);
       if (response != null) {
-        Navigator.pushNamed(context, "/home");
+        if (AccountType == "user") {
+          Navigator.pushReplacementNamed(context, "/userhome");
+        } else {
+          Navigator.pushReplacementNamed(context, "/home");
+        }
+      }
+    }
+  }
+  void signUpOrg(String email, String password, String username, String orgdes,
+      ) {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      String emailLocal = emailController.text.trim();
+      String passwordLocal = passwordController.text.trim();
+      dynamic response = widget.auth.signUpOrgWithEmailAndPassword(
+          email, password, username, orgdes, AccountType);
+      if (response != null) {
+        if (AccountType == "user") {
+          Navigator.pushReplacementNamed(context, "/userhome");
+        } else {
+          Navigator.pushReplacementNamed(context, "/home");
+        }
       }
     }
   }

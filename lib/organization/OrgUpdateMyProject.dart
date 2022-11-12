@@ -13,7 +13,8 @@ class OrgUpdateMyProject extends StatefulWidget {
 
 class _OrgUpdateMyProjectState extends State<OrgUpdateMyProject> {
   final _auth = FirebaseAuth.instance;
-  dynamic projectDate,projectStatus;
+  dynamic paramToPassToDisplaySolutionUrl;
+  dynamic projectDate,projectStatus,projectUrl,projectUrlNumber;
   final TextEditingController projectTitleController = TextEditingController();
   final TextEditingController projectDescriptionController =
       TextEditingController();
@@ -30,6 +31,9 @@ class _OrgUpdateMyProjectState extends State<OrgUpdateMyProject> {
         .then((value) {
       final arg1 = ModalRoute.of(context)!.settings.arguments as Map;
       final arg = arg1['itemDetail'];
+      setState((){
+        paramToPassToDisplaySolutionUrl = arg;
+      });
 
       indextopass = arg1['index'];
       // print(indextopass);
@@ -38,6 +42,8 @@ class _OrgUpdateMyProjectState extends State<OrgUpdateMyProject> {
       projectPreferencesController.text = arg['project_preferences'];
       projectDate = arg["date"];
       projectStatus = arg["status"];
+      projectUrl = arg["solutionurl"];
+      projectUrlNumber = arg["totalurl"];
     });
   }
 
@@ -65,6 +71,7 @@ class _OrgUpdateMyProjectState extends State<OrgUpdateMyProject> {
         actions: [
           IconButton(
             onPressed: () async{
+              // print(projectUrl);
               await PostProjectService(uid: widget.auth.currentUser!.uid)
                   .deleteProject(
                   widget.auth.currentUser!.uid,
@@ -73,8 +80,11 @@ class _OrgUpdateMyProjectState extends State<OrgUpdateMyProject> {
                   projectPreferencesController.text.trim(),
                   indextopass,
                   projectDate,
-                projectStatus
+                projectStatus,
+                projectUrl,
+                projectUrlNumber
               );
+
               final snackBar = SnackBar(
                 content: const Text('Project Deleted Successfully..')
               );
@@ -135,6 +145,7 @@ class _OrgUpdateMyProjectState extends State<OrgUpdateMyProject> {
                 margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                 child: TextFormField(
                   autofocus: false,
+
                   controller: projectDescriptionController,
                   validator: (value) =>
                       validateField(value!, "Project Description"),
@@ -183,33 +194,57 @@ class _OrgUpdateMyProjectState extends State<OrgUpdateMyProject> {
               const SizedBox(
                 height: 20,
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    _formKey.currentState!.save();
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        _formKey.currentState!.save();
 
-                    await PostProjectService(uid: widget.auth.currentUser!.uid)
-                        .updateProject(
-                      widget.auth.currentUser!.uid,
-                      projectTitleController.text.trim(),
-                      projectDescriptionController.text.trim(),
-                      projectPreferencesController.text.trim(),
-                      indextopass
+                        await PostProjectService(uid: widget.auth.currentUser!.uid)
+                            .updateProject(
+                          widget.auth.currentUser!.uid,
+                          projectTitleController.text.trim(),
+                          projectDescriptionController.text.trim(),
+                          projectPreferencesController.text.trim(),
+                          indextopass
+                        );
+                        Navigator.pop(context);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                        primary: Colors.amber,
+                        padding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15))),
+                    child: const Text(
+                      "Update Project",
+                      style: TextStyle(color: Colors.black87),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                        Navigator.pushNamed(context, "/org_viewsolutionofproject",arguments: {"projectDetail":paramToPassToDisplaySolutionUrl,'indextopass':indextopass.toString()});
+                    },
+                    style: ElevatedButton.styleFrom(
+                        primary: Colors.lightBlue,
+                        padding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15))),
+                    child: const Text(
+                      "View Solutions",
+                      style: TextStyle(color: Colors.black87),
+                    ),
+                  ),
 
-                    );
-                    Navigator.pop(context);
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                    primary: Colors.amber,
-                    padding: EdgeInsets.fromLTRB(20, 15, 20, 15),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15))),
-                child: const Text(
-                  "Update Project",
-                  style: TextStyle(color: Colors.black87),
-                ),
+                ],
+
+              ),
+              SizedBox(
+                height: 30,
               )
+
             ],
           ),
         ),

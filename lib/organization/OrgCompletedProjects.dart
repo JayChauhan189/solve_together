@@ -51,18 +51,34 @@ class _OrgCompletedProjectsState extends State<OrgCompletedProjects> {
               List checkingForEmptyList = documentData["project"];
               if (documentData["project"] == null ||
                   checkingForEmptyList.isEmpty) {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const <Widget>[
-                    Text(
-                      "No Project Available...",
-                      maxLines: 2,
-                      style: TextStyle(
-                        fontSize: 20.0,
-                        color: Colors.black,
+                return Padding(
+                  padding: EdgeInsets.fromLTRB(55.0, 10.0, 0.0, 0.0),
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 250.0,
+                        width: 250.0,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage("assets/icons/errorgif.gif"),
+                            fit: BoxFit.fill,
+                          ),
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                    )
-                  ],
+                      SizedBox(
+                        height: 30,
+                        width: 30,
+                      ),
+                      Container(
+                        child: Text(
+                          "Project List is Empty !",
+                          textScaleFactor: 1.4,
+                          style: TextStyle(color: Colors.blue, letterSpacing: 2.0),
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               }
 
@@ -112,7 +128,7 @@ class _OrgCompletedProjectsState extends State<OrgCompletedProjects> {
                     child: ListTile(
                       contentPadding:
                       const EdgeInsets.fromLTRB(10.0, 2.0, 10.0, 2.0),
-                      tileColor: Colors.yellow[200],
+                      tileColor: Colors.yellow,
                       shape: RoundedRectangleBorder(
                           side: BorderSide(width: 1),
                           borderRadius: BorderRadius.circular(10)),

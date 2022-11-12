@@ -7,8 +7,8 @@ class UpdateProfileService{
   Future updateProfile(String username,String college,String passyear) async{
     return await usersCollection.doc(uid).update({
       'username':username,
-      'passyear':college,
-      'college':passyear,
+      'passyear':passyear,
+      'college':college,
     });
   }
 }

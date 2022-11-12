@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:solve_together/services/auth.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomePage extends StatefulWidget {
@@ -46,12 +47,12 @@ class _HomePageState extends State<HomePage> {
                   Navigator.pushNamed(context, "/display_completedprojects");
                 },
               ),
-              ListTile(
-                title: Text("Issued Certificates"),
-                onTap: () {
-                  Navigator.pushNamed(context, "/display_issuedcertificates");
-                },
-              ),
+              // ListTile(
+              //   title: Text("Issued Certificates"),
+              //   onTap: () {
+              //     Navigator.pushNamed(context, "/display_issuedcertificates");
+              //   },
+              // ),
             ],
           ),
         ),
@@ -77,19 +78,12 @@ class _HomePageState extends State<HomePage> {
             builder: (BuildContext context,
                 AsyncSnapshot<DocumentSnapshot> snapshot) {
               if (snapshot.data == null) {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const <Widget>[
-                    CircularProgressIndicator(),
-                    Text(
-                      "Fetching Data...",
-                      maxLines: 2,
-                      style: TextStyle(
-                        fontSize: 20.0,
-                        color: Colors.black,
-                      ),
-                    )
-                  ],
+                return Padding(
+                  padding: EdgeInsets.fromLTRB(10.0, 250.0, 10.0, 10.0),
+                  child: SpinKitFadingCube(
+                    color: Colors.blue,
+                    size: 90.0,
+                  ),
                 );
               }
 
@@ -102,18 +96,34 @@ class _HomePageState extends State<HomePage> {
               List checkingForEmptyList = documentData["project"];
               if (documentData["project"] == null ||
                   checkingForEmptyList.isEmpty) {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const <Widget>[
-                    Text(
-                      "No Project Available...",
-                      maxLines: 2,
-                      style: TextStyle(
-                        fontSize: 20.0,
-                        color: Colors.black,
+                return Padding(
+                  padding: EdgeInsets.fromLTRB(55.0, 10.0, 0.0, 0.0),
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 250.0,
+                        width: 250.0,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage("assets/icons/errorgif.gif"),
+                            fit: BoxFit.fill,
+                          ),
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                    )
-                  ],
+                      SizedBox(
+                        height: 30,
+                        width: 30,
+                      ),
+                      Container(
+                        child: Text(
+                          "No Projects Available..",
+                          textScaleFactor: 1.4,
+                          style: TextStyle(color: Colors.blue, letterSpacing: 2.0),
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               }
 
@@ -123,16 +133,50 @@ class _HomePageState extends State<HomePage> {
                       .toList();
               final List<Map<String, dynamic>> modifiedlist = [];
               var i = 0;
+              List index1 = [];
               for (var name in itemDetailList) {
                 String checkstatus = name['org_name'];
                 String status = name['status'];
                 if (status == "posted") {
                   modifiedlist.add(name);
+                  index1.add(i);
                 }
                 i++;
               }
+              index1 = index1.reversed.toList();
               var itemDetailsListReversed = modifiedlist.reversed.toList();
-
+              if(itemDetailsListReversed.isEmpty)
+              {
+                return Padding(
+                  padding: EdgeInsets.fromLTRB(55.0, 10.0, 0.0, 0.0),
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 250.0,
+                        width: 250.0,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage("assets/icons/errorgif.gif"),
+                            fit: BoxFit.fill,
+                          ),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 30,
+                        width: 30,
+                      ),
+                      Container(
+                        child: Text(
+                          "No Projects Available ..",
+                          textScaleFactor: 1.4,
+                          style: TextStyle(color: Colors.blue, letterSpacing: 2.0),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
               _buildListTileHere(int index) {
                 final Map<String, dynamic> itemDetail =
                     itemDetailsListReversed[index];
@@ -149,7 +193,7 @@ class _HomePageState extends State<HomePage> {
                     child: ListTile(
                       contentPadding:
                           const EdgeInsets.fromLTRB(10.0, 2.0, 10.0, 2.0),
-                      tileColor: Colors.yellow[200],
+                      tileColor: Colors.yellow,
                       shape: RoundedRectangleBorder(
                           side: BorderSide(width: 1),
                           borderRadius: BorderRadius.circular(10)),
@@ -162,8 +206,9 @@ class _HomePageState extends State<HomePage> {
                       subtitle: Text(date),
                       onTap: () {
                         setState(() {
+
                           Navigator.pushNamed(context, "/org_projectdetails",
-                              arguments: {"projectDetail": itemDetail});
+                              arguments: {"projectDetail": itemDetail,'index':index1[index]});
                           // print(project_title);
                         });
                       },

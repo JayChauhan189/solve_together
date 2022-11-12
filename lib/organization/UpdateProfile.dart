@@ -26,9 +26,10 @@ class _UpdateProfileState extends State<UpdateProfile> {
         .get()
         .then((snapshot) {
       _usernameController.text = snapshot.data()!['username'];
-      _collegeController.text = snapshot.data()!['college'];
-      _passYearController.text = snapshot.data()!['passyear'];
+      _collegeController.text = snapshot.data()!['orgdes'];
+      // _passYearController.text = snapshot.data()!['passyear'];
     });
+
   }
 
   @override
@@ -102,15 +103,16 @@ class _UpdateProfileState extends State<UpdateProfile> {
                     prefixIcon: Padding(
                       padding: const EdgeInsets.only(
                           left: 10, right: 10, top: 4, bottom: 4),
-                      child: Image.asset("assets/icons/clg.png", height: 15),
+                      child: Image.asset("assets/icons/orgdes.png", height: 15),
                     ),
-                    labelText: "College"),
+                    labelText: "Organization Description"),
               ),
             ),
             Container(
               margin: EdgeInsets.fromLTRB(20, 10, 20, 10),
               child: TextFormField(
-                controller: _passYearController,
+                controller: _emailController,
+                readOnly: true,
                 decoration: InputDecoration(
                     contentPadding: EdgeInsets.fromLTRB(30, 20, 30, 20),
                     border: OutlineInputBorder(
@@ -120,9 +122,9 @@ class _UpdateProfileState extends State<UpdateProfile> {
                       padding: const EdgeInsets.only(
                           left: 10, right: 10, top: 4, bottom: 4),
                       child:
-                          Image.asset("assets/icons/passyear.png", height: 15),
+                          Image.asset("assets/icons/email.png", height: 15),
                     ),
-                    labelText: "Passing Year"),
+                    labelText: "Email"),
               ),
             ),
             SizedBox(

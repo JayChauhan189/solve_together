@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.solve_together">
    <application
-        android:label="solve_together"
+        android:label="Solve Together"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

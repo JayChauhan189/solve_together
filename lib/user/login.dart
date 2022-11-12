@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:solve_together/services/auth.dart';
 
 class LoginUser extends StatefulWidget {
@@ -44,7 +46,7 @@ class _LoginUserState extends State<LoginUser> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Pass the baton"),
+        title: const Text("Solve Together"),
         backgroundColor: Colors.black87,
       ),
       body: SingleChildScrollView(
@@ -96,6 +98,7 @@ class _LoginUserState extends State<LoginUser> {
                       const SizedBox(width: 20.0, height: 30.0),
                       //For password
                       TextFormField(
+                        controller: passwordController,
                         obscureText: true,
                         autofocus: false,
                         validator: (value) => validatePassword(value!),
@@ -117,37 +120,6 @@ class _LoginUserState extends State<LoginUser> {
                             hintText: "Enter Your Password",
                             labelText: "Password"),
                         textInputAction: TextInputAction.done,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 10, 10, 5),
-                        child: const Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              "Select Your Account Type",
-                              style: TextStyle(fontSize: 18),
-                            )),
-                      ),
-                      RadioListTile(
-                        activeColor: Colors.green,
-                        title: Text("Organization"),
-                        value: "organization",
-                        groupValue: AccountType,
-                        onChanged: (value) {
-                          setState(() {
-                            AccountType = value.toString();
-                          });
-                        },
-                      ),
-                      RadioListTile(
-                        activeColor: Colors.green,
-                        title: Text("User"),
-                        value: "user",
-                        groupValue: AccountType,
-                        onChanged: (value) {
-                          setState(() {
-                            AccountType = value.toString();
-                          });
-                        },
                       ),
                       const SizedBox(width: 20.0, height: 30.0),
                       ElevatedButton.icon(
@@ -234,18 +206,52 @@ class _LoginUserState extends State<LoginUser> {
     );
   }
 
+  Future<bool?> signInLocalMethod(String email, String password) async {
+    try {
+      dynamic response =
+          await widget.auth.signInWithEmailAndPassword(email, password);
+      return true;
+    } catch (e) {
+        SnackBar snackBar = const SnackBar(
+          backgroundColor: Colors.redAccent,
+          content: Text("Invalid Credentials or Invalid User"),
+          duration:  Duration(seconds: 1),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        emailController.text="";
+        passwordController.text="abc";
+
+
+      return null;
+    }
+  }
+
   void logInUser(String email, String password) async {
+
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       String emailLocal = emailController.text.trim();
       String passwordLocal = passwordController.text.trim();
-      dynamic response = widget.auth.signInWithEmailAndPassword(emailLocal, passwordLocal);
+      try {
+        dynamic response = await signInLocalMethod(emailLocal, passwordLocal);
+        var isanOrgOrUser;
+        await FirebaseFirestore.instance.collection("users").doc(widget.auth.currentUser!.uid).get().then((value) => { isanOrgOrUser = value.data()!["accounttype"]});
 
-      if(response=="User with this email doesn't exist.") {
 
-      }
-      else{
-        Navigator.pushNamed(context, "/home");
+        if (response != null) {
+          if(isanOrgOrUser == "user") {
+            Navigator.pushReplacementNamed(context, "/userhome");
+          }
+          else {
+            Navigator.pushReplacementNamed(context, "/home");
+          }
+        } else {
+          print("User acccount doesn't exist or invalid user credentials");
+        }
+      } on FirebaseException catch (signUpError) {
+        if (signUpError is PlatformException) {
+          if (signUpError.code == 'ERROR_EMAIL_ALREADY_IN_USE') {}
+        }
       }
     }
   }
